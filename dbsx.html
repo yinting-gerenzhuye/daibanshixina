@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>todolist</title>
+</head>
+<style>
+	body,ul,li,input{
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		font-family: '微软雅黑';		
+	}
+	body{
+		background: #CDCDCD;
+	}
+	.nav-out{
+		width: 100%;
+		height: 50px;
+		background: #333;		
+	}
+	.nav{
+		width: 600px;
+		height: 100%;
+		margin: 0 auto;
+		line-height: 50px;
+	}
+	.logo{
+		float: left;
+		font-size: 22px;
+		color: #eee;
+	}
+	.nav input{
+		padding:0;
+		width: 300px;
+		height: 26px;
+		float: right;
+		border: 0;
+		box-sizing:border-box;
+		border-radius: 3px;
+		box-shadow: inset 0 0 3px #ccc;
+		margin-top: 10px;
+	}
+	.list-box{
+		width: 600px;
+		height: auto;
+		margin: 0 auto;
+		/*border:1px solid red;*/
+	}
+	.now-box{
+		height: auto;
+		width: 100%;		
+	}
+	.now-top{
+		height: 60px;		
+		font-size: 25px;
+	}
+	.title{
+		float: left;
+		line-height: 60px;
+	}
+	.tips{
+		float: right;
+		width: 27px;
+		height: 30px;
+		border-radius: 50%;
+		background: #eee;
+		text-align: center;
+		margin-top: 15px;
+		line-height: 30px;
+	}
+	.content-list{
+		height: auto;
+	}
+	.content-list li{
+		height: 35px;
+		background: #fff;
+		border-left: 5px solid #629A9C;
+		border-radius: 3px;
+		margin-top: 10px;
+	}
+	.content-list li input{
+		width: 20px;
+		height: 20px;
+		float: left;
+		margin: 7px 5px 5px 10px;
+	}
+	.content-list li .content{
+		/*width: 100%;*/
+		height: 100%;
+		line-height: 35px;
+		float: left;
+	}
+	.content-list li .del-btn{
+		width: 14px;
+		height: 14px;
+		float: right;
+		background: #ccc;
+		border:8px double #fff;
+		border-radius: 50%;
+		margin-top: 3px;
+	}
+	.content-list li .del-btn div{
+		width: 100%;
+		border-bottom: 2px solid #fff;
+		margin-top: 6px;
+	}
+	.con-box{
+		height: auto;
+		width: 100%;
+	}
+	.con-box .content-list{
+		opacity: 0.6;
+	}
+</style>
+<body>
+	<nav class="nav-out">
+		<div class="nav">
+			<div class="logo">TODOLIST</div>
+			<input type="text" placeholder="添加todo">
+		</div>
+	</nav>
+	<div class="list-box">
+		<div class="now-box">
+			<div class="now-top">
+				<div class="title">正在进行</div>
+				<div class="tips">0</div>
+			</div>
+			<ul class="content-list">
+				<!-- <li>
+					<input type="checkbox">
+					<div class="content">今天中午吃鸭腿饭</div>
+					<div class="del-btn">
+						<div></div>
+					</div>
+				</li>
+				<li>
+					<input type="checkbox">
+					<div class="content">明天中午做作业</div>
+					<div class="del-btn">
+						<div></div>
+					</div>
+				</li>
+				<li>
+					<input type="checkbox">
+					<div class="content">明天中午做作业</div>
+					<div class="del-btn">
+						<div></div>
+					</div>
+				</li> -->
+			</ul>
+		</div>
+		<div class="con-box">
+			<div class="now-top">
+				<div class="title">已经完成</div>
+				<div class="tips">0</div>
+			</div>
+			<ul class="content-list">
+				<!-- <li>
+					<input type="checkbox" checked>
+					<div class="content">今天中午吃鸭腿饭</div>
+					<div class="del-btn">
+						<div></div>
+					</div>
+				</li>
+				<li>
+					<input type="checkbox">
+					<div class="content">今天中午吃鸭腿饭</div>
+					<div class="del-btn">
+						<div></div>
+					</div>
+				</li> -->
+			</ul>
+		</div>
+	</div>
+		
+	<script>
+	var text=document.querySelector('input[type=text]');
+	var nowList=document.querySelector('.now-box .content-list');
+	console.log(nowList)
+	var nowTips=document.querySelector('.now-box .tips');
+	var conList=document.querySelector('.con-box .content-list');
+	var conTips=document.querySelector('.con-box .tips');
+
+	text.onkeydown=function(e){
+		//e.keyCode==13  ==  >回车
+		if(e.keyCode==13){
+			var val=this.value;
+			if(val.length==0){
+				alert('数据不能为空');
+				return;//直接停止不用执行
+			}
+			var data=getData();
+			data.push({
+				title:val,
+				status:false,
+			});
+			this.value="";//按下回车以后input为空
+			saveData(data);
+			reload();
+		}
+	}
+
+
+	//查询、修改数据
+	getData();//调用一次
+	function getData(){
+		var data=JSON.parse(localStorage.getItem('todos'));//字符串转换为对象
+		return data||[];
+	}
+
+	//保存数据
+	function saveData(data){
+		localStorage.setItem('todos',JSON.stringify(data));//把对象转换成字符串
+	}
+
+	reload();//调用一次
+	//重写函数
+	function reload(){
+		var data=getData();
+		var nowStr='',
+			nowNum=0,
+			conStr='',
+			conNum=0;
+		for(var i=0;i<data.length;i++){
+			if(data[i].status==false){
+				nowStr+='<li><input type="checkbox" onclick=changeStatus('+i+',true)><div class="content" contenteditable onblur=changeContent('+i+',this.innerHTML)>'+data[i].title+'</div><div class="del-btn" onclick=del('+i+')><div></div></div></li>';//contenteditable 可以编辑
+				nowNum++;
+			}else{
+				conStr+='<li><input type="checkbox" onclick=changeStatus('+i+',false) checked><div class="content" contenteditable onblur=changeContent('+i+',this.innerHTML)>'+data[i].title+'</div><div class="del-btn" onclick=del('+i+')><div></div></div></li>';
+				conNum++;
+			}
+		}
+		nowList.innerHTML=nowStr;
+		nowTips.innerHTML=nowNum;
+		conList.innerHTML=conStr;
+		conTips.innerHTML=conNum;
+	} 
+
+	//修改状态
+	function changeStatus(i,sta){
+		var data=getData();
+		data[i].status=sta;
+		saveData(data);
+		reload();
+	}
+
+	//修改数据
+	function changeContent(i,text){
+		//alert(tetx)//数据
+		var data=getData();
+		data[i].title=text;
+		saveData(data);
+		// reload();写不写没关系
+	}
+
+	//删除数据
+	function del(i){
+		//alert(tetx)//数据
+		var data=getData();
+		data.splice(i,1);
+		saveData(data);
+		reload();
+	}
+
+
+	/*
+		1.数据如何插入到对应结构
+
+		2.修改数据后  a.如何修改dom
+					  b.存储中的数据
+
+		3.删除 删除dom  删除数据
+
+		4.新增数据 修改dom
+		
+		reload() 根据数据 拼接dom结构
+
+		change(i,s)
+			  (i,t)
+			  getData() 获取、修改数据
+			  saveData() 保存数据
+			  reload() 重写数据
+	*/ 
+	</script>
+</body>
+</html>
